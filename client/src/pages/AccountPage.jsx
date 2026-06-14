@@ -151,7 +151,7 @@ export default function AccountPage() {
                   {mode === 'signup' ? 'Create account' : 'Sign in'}
                 </button>
 
-                {status && <p>{status}</p>}
+                {status && <p className="account-status">{status}</p>}
               </form>
             </>
           )}
