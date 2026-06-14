@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import emailjs from '@emailjs/browser';
 import { postEnquiry } from '../api/client';
@@ -19,9 +19,41 @@ export default function Contact({ site, services = [] }) {
 
   const [status, setStatus] = useState(null);
   const [sending, setSending] = useState(false);
+  const [serviceOpen, setServiceOpen] = useState(false);
+  const serviceRef = useRef(null);
+
+  const serviceOptions = useMemo(() => {
+    const dynamicServices = services.map((s) => s.title).filter(Boolean);
+    return ['General', ...dynamicServices];
+  }, [services]);
+
+  useEffect(() => {
+    const closeDropdown = (e) => {
+      if (serviceRef.current && !serviceRef.current.contains(e.target)) {
+        setServiceOpen(false);
+      }
+    };
+
+    const closeOnEscape = (e) => {
+      if (e.key === 'Escape') setServiceOpen(false);
+    };
+
+    document.addEventListener('mousedown', closeDropdown);
+    window.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', closeDropdown);
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, []);
 
   const set = (k) => (e) => {
     setForm((f) => ({ ...f, [k]: e.target.value }));
+  };
+
+  const selectService = (value) => {
+    setForm((f) => ({ ...f, service: value }));
+    setServiceOpen(false);
   };
 
   const submit = async (e) => {
@@ -208,14 +240,51 @@ export default function Contact({ site, services = [] }) {
                 />
               </div>
 
-              <div className="field">
+              <div className="field service-field" ref={serviceRef}>
                 <label htmlFor="cf-service">Service</label>
-                <select id="cf-service" value={form.service} onChange={set('service')}>
-                  <option>General</option>
-                  {services.map((s) => (
-                    <option key={s.slug || s.title}>{s.title}</option>
-                  ))}
-                </select>
+
+                <button
+                  id="cf-service"
+                  type="button"
+                  className={`service-select-trigger ${serviceOpen ? 'open' : ''}`}
+                  onClick={() => setServiceOpen((o) => !o)}
+                  aria-haspopup="listbox"
+                  aria-expanded={serviceOpen}
+                >
+                  <span>{form.service}</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M6 9l6 6 6-6"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+
+           {serviceOpen && (
+  <div
+    className="service-options"
+    role="listbox"
+    data-lenis-prevent
+    onWheel={(e) => e.stopPropagation()}
+    onTouchMove={(e) => e.stopPropagation()}
+  >
+    {serviceOptions.map((option) => (
+      <button
+        key={option}
+        type="button"
+        className={form.service === option ? 'selected' : ''}
+        onClick={() => selectService(option)}
+        role="option"
+        aria-selected={form.service === option}
+      >
+        {option}
+      </button>
+    ))}
+  </div>
+)}
               </div>
             </div>
 

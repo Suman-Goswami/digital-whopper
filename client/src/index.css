@@ -2348,3 +2348,167 @@ h1, h2, h3 {
     height: 40px;
   }
 }
+
+/* ============================================================
+   CONTACT PAGE — responsive custom service dropdown
+   Replaces native select dropdown so options do not overflow
+   on mobile / responsive preview.
+   ============================================================ */
+
+.contact-inner,
+.contact-form,
+.form-row,
+.field {
+  overflow: visible;
+}
+
+.service-field {
+  position: relative;
+  z-index: 60;
+}
+
+.service-select-trigger {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--white);
+  font-family: inherit;
+  font-size: 15px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+}
+
+.service-select-trigger span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-select-trigger svg {
+  flex: 0 0 auto;
+  transition: transform 0.25s ease;
+}
+
+.service-select-trigger.open svg {
+  transform: rotate(180deg);
+}
+
+.service-select-trigger:focus,
+.service-select-trigger.open {
+  outline: none;
+  border-color: var(--rose);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(255, 77, 141, 0.16);
+}
+
+.service-options {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 999;
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(255, 77, 141, 0.32);
+  border-radius: 16px;
+  background: #070916;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  padding: 8px;
+}
+.service-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.service-options::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.service-options::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--rose), var(--amber));
+  border-radius: 999px;
+}
+
+.service-options {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rose) rgba(255, 255, 255, 0.06);
+}
+
+.service-options button {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--white);
+  text-align: left;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.25;
+  padding: 13px 14px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.service-options button:hover,
+.service-options button.selected {
+  background: var(--grad);
+  color: #1a0610;
+}
+
+@media (max-width: 560px) {
+  .contact-form {
+    padding: 28px 20px;
+    overflow: visible;
+  }
+
+  .service-field {
+    z-index: 90;
+  }
+
+  .service-select-trigger {
+    min-height: 56px;
+    font-size: 14.5px;
+    padding: 14px 15px;
+  }
+
+  .service-options {
+    max-height: 240px;
+    border-radius: 14px;
+  }
+
+  .service-options button {
+    font-size: 14.5px;
+    padding: 12px 13px;
+  }
+}
+
+@media (max-width: 380px) {
+  .contact-form {
+    padding: 24px 16px;
+  }
+
+  .service-select-trigger {
+    font-size: 14px;
+  }
+
+  .service-options button {
+    font-size: 14px;
+  }
+}
+/* Mobile dropdown height */
+@media (max-width: 560px) {
+  .service-options {
+    max-height: 180px;
+  }
+}
