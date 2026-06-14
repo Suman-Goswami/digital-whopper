@@ -23,16 +23,47 @@ export default function App() {
   const [homeLoading, setHomeLoading] = useState(true);
   const location = useLocation();
 
-  /* Buttery smooth scrolling — instance exposed for cinematic mode */
+  /* Smooth scrolling — optimized RAF cleanup */
   useEffect(() => {
-    const lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    if (prefersReducedMotion) return undefined;
+
+    const lenis = new Lenis({
+      lerp: 0.075,
+      duration: 1.1,
+      smoothWheel: true,
+      smoothTouch: false,
+      wheelMultiplier: 0.85,
+      touchMultiplier: 1.15
+    });
+
     window.__lenis = lenis;
+
+    let rafId = 0;
+
     const raf = (time) => {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     };
-    requestAnimationFrame(raf);
+
+    rafId = requestAnimationFrame(raf);
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     return () => {
+      cancelAnimationFrame(rafId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       lenis.destroy();
       delete window.__lenis;
     };
@@ -40,7 +71,11 @@ export default function App() {
 
   /* Scroll to top on route change */
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (window.__lenis) {
+      window.__lenis.scrollTo(0, { immediate: true });
+    } else {
+      window.scrollTo(0, 0);
+    }
   }, [location.pathname]);
 
   useEffect(() => {
@@ -50,13 +85,14 @@ export default function App() {
     }
 
     setHomeLoading(true);
-    const timer = window.setTimeout(() => setHomeLoading(false), 2200);
+    const timer = window.setTimeout(() => setHomeLoading(false), 1800);
     return () => window.clearTimeout(timer);
   }, [location.pathname, location.key]);
 
   /* Load all content from the MongoDB-backed API */
   useEffect(() => {
     let alive = true;
+
     (async () => {
       try {
         const all = await fetchAll();
@@ -64,9 +100,12 @@ export default function App() {
       } catch {
         if (alive) setData(FALLBACK);
       } finally {
-        setTimeout(() => alive && setBootLoading(false), 2200);
+        window.setTimeout(() => {
+          if (alive) setBootLoading(false);
+        }, 1600);
       }
     })();
+
     return () => {
       alive = false;
     };
@@ -80,9 +119,13 @@ export default function App() {
       <ScrollProgress />
       <ParticleField />
       <CustomCursor />
-      <AnimatePresence>{showLoader && <Preloader key={`loader-${location.key}`} />}</AnimatePresence>
+
+      <AnimatePresence mode="wait">
+        {showLoader && <Preloader key={`loader-${location.key}`} />}
+      </AnimatePresence>
 
       <Navbar site={d.site} />
+
       <Routes>
         <Route path="/" element={<Home data={d} />} />
         <Route path="/services" element={<ServicesPage data={d} />} />
@@ -90,6 +133,7 @@ export default function App() {
         <Route path="/account" element={<AccountPage />} />
         <Route path="*" element={<Home data={d} />} />
       </Routes>
+
       <Whoppy site={d.site} />
       <Footer site={d.site} services={d.services} />
     </>

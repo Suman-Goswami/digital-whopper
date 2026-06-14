@@ -10,7 +10,7 @@ import Faq from '../components/Faq';
 
 export default function Home({ data: d }) {
   return (
-    <main>
+    <main className="home-page">
       <Hero site={d.site} />
       <Marquee
         items={[
