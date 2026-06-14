@@ -10,6 +10,9 @@ const apiRoutes = require('./routes/api');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+/* ---------- Railway / proxy fix ---------- */
+app.set('trust proxy', 1);
+
 /* ---------- Startup logs ---------- */
 console.log('-------------------------------');
 console.log('🚀 Starting Digital Whopper API');
@@ -27,21 +30,25 @@ app.use(helmet({ contentSecurityPolicy: false }));
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:3000',
+  'https://digital-whopper-two.vercel.app',
   'https://digital-whopper-tau.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
-console.log('✅ Allowed CORS origins:', allowedOrigins);
-
 const corsOptions = {
-  origin: function (origin, callback) {
+  origin(origin, callback) {
     console.log('🌐 Request origin:', origin || 'No origin');
 
     if (!origin) {
       return callback(null, true);
     }
 
-    if (allowedOrigins.includes(origin)) {
+    const isAllowed =
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/digital-whopper.*\.vercel\.app$/.test(origin);
+
+    if (isAllowed) {
       return callback(null, true);
     }
 
@@ -59,7 +66,6 @@ app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true }));
 
-/* ---------- Request logger ---------- */
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
@@ -73,8 +79,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Digital Whopper API is running',
-    env: process.env.NODE_ENV || 'development'
+    message: 'Digital Whopper API is running'
   });
 });
 
