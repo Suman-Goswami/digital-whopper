@@ -27,7 +27,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://digital-whopper-two.vercel.app',
+  'https://digital-whopper-tau.vercel.app/',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
