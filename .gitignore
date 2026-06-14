@@ -1,7 +1,10 @@
-# Environment variables
+node_modules/
+client/node_modules/
+server/node_modules/
+
+dist/
+client/dist/
+
+.env
 client/.env
 server/.env
-
-# Optional: ignore all env variants
-client/.env*
-server/.env*
