@@ -1,0 +1,7 @@
+# Environment variables
+client/.env
+server/.env
+
+# Optional: ignore all env variants
+client/.env*
+server/.env*
