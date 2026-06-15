@@ -19,12 +19,22 @@ import AccountPage from './pages/AccountPage';
 
 export default function App() {
   const [data, setData] = useState(null);
-  const [bootLoading, setBootLoading] = useState(true);
-  const [homeLoading, setHomeLoading] = useState(true);
+
+  const isPrerender =
+    navigator.userAgent === 'ReactSnap' ||
+    window.location.search.includes('react-snap');
+
+  const [bootLoading, setBootLoading] = useState(!isPrerender);
+  const [homeLoading, setHomeLoading] = useState(!isPrerender);
+
   const location = useLocation();
 
   /* Smooth scrolling — optimized RAF cleanup */
   useEffect(() => {
+    if (navigator.userAgent === 'ReactSnap') {
+      return;
+    }
+
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
     ).matches;
@@ -79,6 +89,11 @@ export default function App() {
   }, [location.pathname]);
 
   useEffect(() => {
+    if (isPrerender) {
+      setHomeLoading(false);
+      return;
+    }
+
     if (location.pathname !== '/') {
       setHomeLoading(false);
       return undefined;
@@ -86,8 +101,9 @@ export default function App() {
 
     setHomeLoading(true);
     const timer = window.setTimeout(() => setHomeLoading(false), 1800);
+
     return () => window.clearTimeout(timer);
-  }, [location.pathname, location.key]);
+  }, [location.pathname, location.key, isPrerender]);
 
   /* Load all content from the MongoDB-backed API */
   useEffect(() => {
@@ -96,12 +112,26 @@ export default function App() {
     (async () => {
       try {
         const all = await fetchAll();
-        if (alive) setData(all);
+
+        if (alive) {
+          setData(all);
+        }
       } catch {
-        if (alive) setData(FALLBACK);
+        if (alive) {
+          setData(FALLBACK);
+        }
       } finally {
+        if (isPrerender) {
+          if (alive) {
+            setBootLoading(false);
+          }
+          return;
+        }
+
         window.setTimeout(() => {
-          if (alive) setBootLoading(false);
+          if (alive) {
+            setBootLoading(false);
+          }
         }, 1600);
       }
     })();
@@ -109,7 +139,7 @@ export default function App() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [isPrerender]);
 
   const d = data || FALLBACK;
   const showLoader = bootLoading || homeLoading;
