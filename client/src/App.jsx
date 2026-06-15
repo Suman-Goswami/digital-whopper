@@ -18,14 +18,18 @@ import ContactPage from './pages/ContactPage';
 import AccountPage from './pages/AccountPage';
 
 export default function App() {
-  const [data, setData] = useState(null);
-  const [bootLoading, setBootLoading] = useState(true);
-  const [homeLoading, setHomeLoading] = useState(true);
+  const [data, setData] = useState(FALLBACK);
+  const [bootLoading, setBootLoading] = useState(false);
+  const [homeLoading, setHomeLoading] = useState(false);
 
   const location = useLocation();
 
+  const isBrowser = typeof window !== 'undefined';
+
   /* Smooth scrolling */
   useEffect(() => {
+    if (!isBrowser) return;
+
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
     ).matches;
@@ -38,7 +42,7 @@ export default function App() {
       smoothWheel: true,
       smoothTouch: false,
       wheelMultiplier: 0.85,
-      touchMultiplier: 1.15
+      touchMultiplier: 1.15,
     });
 
     window.__lenis = lenis;
@@ -64,26 +68,27 @@ export default function App() {
 
     return () => {
       cancelAnimationFrame(rafId);
-      document.removeEventListener(
-        'visibilitychange',
-        onVisibilityChange
-      );
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       lenis.destroy();
       delete window.__lenis;
     };
-  }, []);
+  }, [isBrowser]);
 
   /* Scroll to top on route change */
   useEffect(() => {
+    if (!isBrowser) return;
+
     if (window.__lenis) {
       window.__lenis.scrollTo(0, { immediate: true });
     } else {
       window.scrollTo(0, 0);
     }
-  }, [location.pathname]);
+  }, [isBrowser, location.pathname]);
 
   /* Home page loader */
   useEffect(() => {
+    if (!isBrowser) return;
+
     if (location.pathname !== '/') {
       setHomeLoading(false);
       return;
@@ -96,11 +101,15 @@ export default function App() {
     }, 1800);
 
     return () => window.clearTimeout(timer);
-  }, [location.pathname, location.key]);
+  }, [isBrowser, location.pathname, location.key]);
 
   /* Load all content from API */
   useEffect(() => {
+    if (!isBrowser) return;
+
     let alive = true;
+
+    setBootLoading(true);
 
     (async () => {
       try {
@@ -125,7 +134,7 @@ export default function App() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [isBrowser]);
 
   const d = data || FALLBACK;
   const showLoader = bootLoading || homeLoading;
@@ -137,38 +146,22 @@ export default function App() {
       <CustomCursor />
 
       <AnimatePresence mode="wait">
-        {showLoader && (
-          <Preloader key={`loader-${location.key}`} />
-        )}
+        {showLoader && <Preloader key={`loader-${location.key}`} />}
       </AnimatePresence>
 
       <Navbar site={d.site} />
 
       <Routes>
         <Route path="/" element={<Home data={d} />} />
-        <Route
-          path="/services"
-          element={<ServicesPage data={d} />}
-        />
-        <Route
-          path="/contact"
-          element={<ContactPage data={d} />}
-        />
-        <Route
-          path="/account"
-          element={<AccountPage />}
-        />
-        <Route
-          path="*"
-          element={<Home data={d} />}
-        />
+        <Route path="/services" element={<ServicesPage data={d} />} />
+        <Route path="/contact" element={<ContactPage data={d} />} />
+        <Route path="/account" element={<AccountPage />} />
+        <Route path="*" element={<Home data={d} />} />
       </Routes>
 
       <Whoppy site={d.site} />
-      <Footer
-        site={d.site}
-        services={d.services}
-      />
+
+      <Footer site={d.site} services={d.services} />
     </>
   );
 }
