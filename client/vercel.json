@@ -1,20 +1,15 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/client",
   "functions": {
     "api/index.js": {
       "includeFiles": "dist/**"
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/assets/(.*)",
-      "destination": "/assets/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/api/index"
+      "src": "/(.*)",
+      "dest": "/api/index.js"
     }
   ]
 }
