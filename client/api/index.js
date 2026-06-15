@@ -11,11 +11,6 @@ const app = express();
 const clientDist = path.resolve(__dirname, '../dist/client');
 const serverEntry = path.resolve(__dirname, '../dist/server/entry-server.js');
 
-const templatePromise = fs.readFile(
-  path.join(clientDist, 'index.html'),
-  'utf-8'
-);
-
 app.use(
   '/assets',
   express.static(path.join(clientDist, 'assets'), {
@@ -24,27 +19,26 @@ app.use(
   })
 );
 
-app.use(
-  express.static(clientDist, {
-    index: false,
-  })
-);
+app.use(express.static(clientDist, { index: false }));
 
-app.get('*', async (req, res) => {
+app.use(async (req, res) => {
   try {
-    const template = await templatePromise;
+    const template = await fs.readFile(
+      path.join(clientDist, 'index.html'),
+      'utf-8'
+    );
+
     const { render } = await import(pathToFileURL(serverEntry).href);
 
-    const url = req.originalUrl || '/';
-    const appHtml = await render(url);
+    const appHtml = await render(req.originalUrl || '/');
 
     const html = template.replace('<!--app-html-->', appHtml);
 
     res.status(200).setHeader('Content-Type', 'text/html');
     res.end(html);
   } catch (error) {
-    console.error(error);
-    res.status(500).end(error.stack);
+    console.error('SSR function error:', error);
+    res.status(500).end(error.stack || String(error));
   }
 });
 
