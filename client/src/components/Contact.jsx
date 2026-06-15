@@ -106,10 +106,13 @@ export default function Contact({ site, services = [] }) {
         { publicKey: EMAILJS_PUBLIC_KEY }
       );
 
-      setStatus({
-        ok: true,
-        msg: dbRes?.message || 'Thanks! Your enquiry has been sent successfully.'
-      });
+    setStatus({
+  ok: true,
+  msg:
+    (dbRes && dbRes.message)
+      ? dbRes.message
+      : 'Thanks! Your enquiry has been sent successfully.'
+});
 
       setForm({
         name: '',
@@ -159,7 +162,9 @@ export default function Contact({ site, services = [] }) {
               <div className="ci-icon">📍</div>
               <div>
                 <div className="t">Visit us</div>
-                <div className="d">{site?.address}</div>
+                <div className="d">
+  {site && site.address}
+</div>
               </div>
             </div>
 
@@ -168,9 +173,11 @@ export default function Contact({ site, services = [] }) {
               <div>
                 <div className="t">Call us</div>
                 <div className="d">
-                  <a href={`tel:${(site?.phone || '').replace(/\s/g, '')}`}>
-                    {site?.phone}
-                  </a>
+               <a
+  href={`tel:${((site && site.phone) || '').replace(/\s/g, '')}`}
+>
+  {site && site.phone}
+</a>
                 </div>
               </div>
             </div>
@@ -180,9 +187,13 @@ export default function Contact({ site, services = [] }) {
               <div>
                 <div className="t">WhatsApp</div>
                 <div className="d">
-                  <a href={site?.whatsapp} target="_blank" rel="noreferrer">
-                    Chat with Whoppy — we reply fast
-                  </a>
+                 <a
+  href={site && site.whatsapp}
+  target="_blank"
+  rel="noreferrer"
+>
+  Chat with Whoppy — we reply fast
+</a>
                 </div>
               </div>
             </div>
@@ -191,7 +202,9 @@ export default function Contact({ site, services = [] }) {
               <div className="ci-icon">✉️</div>
               <div>
                 <div className="t">Email</div>
-                <div className="d">{site?.email}</div>
+           <div className="d">
+  {site && site.email}
+</div>
               </div>
             </div>
           </motion.div>

@@ -19,27 +19,18 @@ import AccountPage from './pages/AccountPage';
 
 export default function App() {
   const [data, setData] = useState(null);
-
-  const isPrerender =
-    navigator.userAgent === 'ReactSnap' ||
-    window.location.search.includes('react-snap');
-
-  const [bootLoading, setBootLoading] = useState(!isPrerender);
-  const [homeLoading, setHomeLoading] = useState(!isPrerender);
+  const [bootLoading, setBootLoading] = useState(true);
+  const [homeLoading, setHomeLoading] = useState(true);
 
   const location = useLocation();
 
-  /* Smooth scrolling — optimized RAF cleanup */
+  /* Smooth scrolling */
   useEffect(() => {
-    if (navigator.userAgent === 'ReactSnap') {
-      return;
-    }
-
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
     ).matches;
 
-    if (prefersReducedMotion) return undefined;
+    if (prefersReducedMotion) return;
 
     const lenis = new Lenis({
       lerp: 0.075,
@@ -73,7 +64,10 @@ export default function App() {
 
     return () => {
       cancelAnimationFrame(rafId);
-      document.removeEventListener('visibilitychange', onVisibilityChange);
+      document.removeEventListener(
+        'visibilitychange',
+        onVisibilityChange
+      );
       lenis.destroy();
       delete window.__lenis;
     };
@@ -88,24 +82,23 @@ export default function App() {
     }
   }, [location.pathname]);
 
+  /* Home page loader */
   useEffect(() => {
-    if (isPrerender) {
+    if (location.pathname !== '/') {
       setHomeLoading(false);
       return;
     }
 
-    if (location.pathname !== '/') {
-      setHomeLoading(false);
-      return undefined;
-    }
-
     setHomeLoading(true);
-    const timer = window.setTimeout(() => setHomeLoading(false), 1800);
+
+    const timer = window.setTimeout(() => {
+      setHomeLoading(false);
+    }, 1800);
 
     return () => window.clearTimeout(timer);
-  }, [location.pathname, location.key, isPrerender]);
+  }, [location.pathname, location.key]);
 
-  /* Load all content from the MongoDB-backed API */
+  /* Load all content from API */
   useEffect(() => {
     let alive = true;
 
@@ -121,13 +114,6 @@ export default function App() {
           setData(FALLBACK);
         }
       } finally {
-        if (isPrerender) {
-          if (alive) {
-            setBootLoading(false);
-          }
-          return;
-        }
-
         window.setTimeout(() => {
           if (alive) {
             setBootLoading(false);
@@ -139,7 +125,7 @@ export default function App() {
     return () => {
       alive = false;
     };
-  }, [isPrerender]);
+  }, []);
 
   const d = data || FALLBACK;
   const showLoader = bootLoading || homeLoading;
@@ -151,21 +137,38 @@ export default function App() {
       <CustomCursor />
 
       <AnimatePresence mode="wait">
-        {showLoader && <Preloader key={`loader-${location.key}`} />}
+        {showLoader && (
+          <Preloader key={`loader-${location.key}`} />
+        )}
       </AnimatePresence>
 
       <Navbar site={d.site} />
 
       <Routes>
         <Route path="/" element={<Home data={d} />} />
-        <Route path="/services" element={<ServicesPage data={d} />} />
-        <Route path="/contact" element={<ContactPage data={d} />} />
-        <Route path="/account" element={<AccountPage />} />
-        <Route path="*" element={<Home data={d} />} />
+        <Route
+          path="/services"
+          element={<ServicesPage data={d} />}
+        />
+        <Route
+          path="/contact"
+          element={<ContactPage data={d} />}
+        />
+        <Route
+          path="/account"
+          element={<AccountPage />}
+        />
+        <Route
+          path="*"
+          element={<Home data={d} />}
+        />
       </Routes>
 
       <Whoppy site={d.site} />
-      <Footer site={d.site} services={d.services} />
+      <Footer
+        site={d.site}
+        services={d.services}
+      />
     </>
   );
 }

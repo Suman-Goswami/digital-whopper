@@ -69,7 +69,12 @@ export default function AccountPage() {
           {user ? (
             <div className="account-profile">
               <div className="account-avatar">
-                {user.name?.charAt(0)?.toUpperCase() || 'D'}
+              {
+  (user &&
+    user.name &&
+    user.name.charAt(0).toUpperCase()) ||
+  'D'
+}
               </div>
 
               <b>{user.name}</b>

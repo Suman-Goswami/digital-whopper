@@ -12,7 +12,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 function createAmbience() {
   const Ctx = window.AudioContext || window.webkitAudioContext;
   const ctx = new Ctx();
-  ctx.resume?.();
+if (ctx && ctx.resume) {
+  ctx.resume();
+}
 
   const master = ctx.createGain();
   master.gain.value = 0;
@@ -161,9 +163,13 @@ export default function CinematicScroll() {
     const s = stateRef.current;
     cancelAnimationFrame(s.raf);
     clearTimeout(s.doneTimer);
-    s.audio?.stop();
+  if (s.audio) {
+  s.audio.stop();
+}
     s.audio = null;
-    window.__lenis?.start?.();
+    if (window.__lenis && window.__lenis.start) {
+  window.__lenis.start();
+}
     window.dispatchEvent(new CustomEvent('cinematic-scroll-state', { detail: false }));
     setPlaying(false);
   };
@@ -195,8 +201,10 @@ export default function CinematicScroll() {
       const distance = Math.max(s.target - s.startY, 0);
       const durationMs = Math.max(distance / SPEED * 1000, 700);
 
-      if (window.__lenis?.scrollTo) {
-        window.__lenis.start?.();
+   if (window.__lenis && window.__lenis.scrollTo) {
+      if (window.__lenis && window.__lenis.start) {
+  window.__lenis.start();
+}
         window.__lenis.scrollTo(s.target, {
           duration: durationMs / 1000,
           easing: (t) => t,

@@ -36,7 +36,12 @@ export default function ContactPage({ data: d }) {
           >
             <iframe
               title="Digital Whopper office, Malviya Nagar, Jaipur"
-              src={d.site?.mapEmbed || 'https://www.google.com/maps?q=Malviya+Nagar+Jaipur&output=embed'}
+            src={
+  (d &&
+    d.site &&
+    d.site.mapEmbed) ||
+  'https://www.google.com/maps?q=Malviya+Nagar+Jaipur&output=embed'
+}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen

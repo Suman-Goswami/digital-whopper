@@ -31,15 +31,21 @@ export const fetchAll = async () => {
       get('faqs').catch(() => FALLBACK.faqs)
     ]);
 
-  return {
-    site: site || FALLBACK.site,
-    services: services?.length ? services : FALLBACK.services,
-    testimonials: testimonials?.length ? testimonials : FALLBACK.testimonials,
-    strategy: strategy?.length ? strategy : FALLBACK.strategy,
-    milestones: milestones?.length ? milestones : FALLBACK.milestones,
-    blogs: blogs?.length ? blogs : FALLBACK.blogs,
-    faqs: faqs?.length ? faqs : FALLBACK.faqs
-  };
+return {
+  site: site || FALLBACK.site,
+  services: services && services.length ? services : FALLBACK.services,
+  testimonials:
+    testimonials && testimonials.length
+      ? testimonials
+      : FALLBACK.testimonials,
+  strategy: strategy && strategy.length ? strategy : FALLBACK.strategy,
+  milestones:
+    milestones && milestones.length
+      ? milestones
+      : FALLBACK.milestones,
+  blogs: blogs && blogs.length ? blogs : FALLBACK.blogs,
+  faqs: faqs && faqs.length ? faqs : FALLBACK.faqs
+};
 };
 
 export const postEnquiry = async (payload) => {

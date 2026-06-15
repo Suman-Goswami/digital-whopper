@@ -47,7 +47,7 @@ export default function Navbar({ site }) {
       <div className="nav-inner">
         <Link className="nav-logo" to="/" onClick={() => setOpen(false)}>
           <span className="dot" />
-          {site?.brandName || 'Digital Whopper'}
+          {(site && site.brandName) || 'Digital Whopper'}
         </Link>
 
         <ul className={`nav-links ${open ? 'open' : ''}`}>

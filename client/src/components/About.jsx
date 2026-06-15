@@ -22,7 +22,9 @@ export default function About({ site }) {
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="about-body">{site?.aboutBody}</p>
+         <p className="about-body">
+  {site && site.aboutBody}
+</p>
           <a className="btn btn-primary" href="contact">
             Know us better ✦
           </a>

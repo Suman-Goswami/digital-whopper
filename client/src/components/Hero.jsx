@@ -64,7 +64,7 @@ export default function Hero({ site }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 2.2 }}
           >
-            {site?.heroEyebrow}
+           {site && site.heroEyebrow}
           </motion.span>
 
           <h1>
@@ -75,7 +75,7 @@ export default function Hero({ site }) {
           </h1>
 
           <motion.p className="hero-body" variants={fadeUp} initial="hidden" animate="show" custom={1}>
-            {site?.heroBody}
+            {site && site.heroBody}
           </motion.p>
 
           <motion.div className="hero-ctas" variants={fadeUp} initial="hidden" animate="show" custom={2}>
@@ -84,12 +84,14 @@ export default function Hero({ site }) {
           </motion.div>
 
           <motion.div className="hero-stats" variants={fadeUp} initial="hidden" animate="show" custom={3}>
-            {(site?.stats || []).map((s) => (
-              <div className="hero-stat" key={s.label}>
-                <div className="v"><Counter value={s.value} /></div>
-                <div className="l">{s.label}</div>
-              </div>
-            ))}
+          {((site && site.stats) || []).map((s) => (
+  <div className="hero-stat" key={s.label}>
+    <div className="v">
+      <Counter value={s.value} />
+    </div>
+    <div className="l">{s.label}</div>
+  </div>
+))}
           </motion.div>
         </div>
 
