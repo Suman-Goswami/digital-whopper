@@ -20,18 +20,23 @@ app.use(
   '/assets',
   express.static(path.join(clientDist, 'assets'), {
     immutable: true,
-    maxAge: '1y'
+    maxAge: '1y',
   })
 );
 
-app.use(express.static(clientDist, { index: false }));
+app.use(
+  express.static(clientDist, {
+    index: false,
+  })
+);
 
-app.use(async (req, res) => {
+app.get('*', async (req, res) => {
   try {
     const template = await templatePromise;
     const { render } = await import(pathToFileURL(serverEntry).href);
 
-    const appHtml = await render(req.originalUrl);
+    const url = req.originalUrl || '/';
+    const appHtml = await render(url);
 
     const html = template.replace('<!--app-html-->', appHtml);
 
