@@ -64,6 +64,84 @@ html.lenis body {
   transform: translateZ(0);
 }
 
+.project-showcase,
+.project-showcase-inner,
+.project-showcase-layout {
+  contain: layout paint;
+}
+
+.project-showcase-layout {
+  transform: translateZ(0);
+  will-change: opacity, transform;
+}
+
+.project-side-grid {
+  contain: layout paint style;
+}
+
+.project-wall-card {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: layout paint style;
+}
+
+.project-wall-screen {
+  overflow: hidden;
+  contain: paint;
+}
+
+.project-wall-screen img,
+.hand-phone-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.hand-phone-stage,
+.hand-phone-motion,
+.hand-phone-video {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: layout paint;
+}
+
+@media (max-width: 980px) {
+  .project-side-grid {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 900px;
+  }
+}
+
+@media (max-width: 720px) {
+  .project-showcase-layout {
+    gap: 18px;
+  }
+
+  .project-side-grid {
+    display: none;
+  }
+
+  .hand-phone-stage {
+    width: min(100%, 420px);
+    margin-inline: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-showcase-layout,
+  .project-wall-card,
+  .hand-phone-motion,
+  .hand-phone-video,
+  .video-core,
+  .video-bars i {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 .project-wall-screen img {
   content-visibility: auto;
 }
