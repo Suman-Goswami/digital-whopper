@@ -261,6 +261,12 @@ h1, h2, h3 {
   padding-inline: clamp(0px, 1vw, 18px);
 }
 
+@media (max-width: 767px) {
+  .project-showcase {
+    display: none !important;
+  }
+}
+
 .project-showcase-layout > .project-side-grid:first-child {
   grid-column: 1 !important;
   grid-row: 1 !important;

@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 const PROJECTS = [
@@ -108,12 +108,81 @@ const ProjectTile = memo(function ProjectTile({ project }) {
 
 export default function PhoneShowcase() {
   const reduceMotion = useReducedMotion();
+  const [cinematicScrolling, setCinematicScrolling] = useState(false);
+
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(max-width: 767px)').matches;
+  });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+
+    const handleResize = () => {
+      setIsMobile(mediaQuery.matches);
+    };
+
+    handleResize();
+
+    mediaQuery.addEventListener('change', handleResize);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleState = (event) => setCinematicScrolling(Boolean(event.detail));
+
+    window.addEventListener('cinematic-scroll-state', handleState);
+
+    return () => {
+      window.removeEventListener('cinematic-scroll-state', handleState);
+    };
+  }, []);
+
+  if (isMobile) return null;
 
   return (
-    <section className="showcase project-showcase" id="work">
+    <section
+      className={`showcase project-showcase${cinematicScrolling ? ' cinematic-lite' : ''}`}
+      id="work"
+    >
+      {cinematicScrolling && (
+        <style>{`
+          .project-showcase.cinematic-lite,
+          .project-showcase.cinematic-lite *,
+          .project-showcase.cinematic-lite *::before,
+          .project-showcase.cinematic-lite *::after {
+            animation-play-state: paused !important;
+            transition: none !important;
+          }
+
+          .project-showcase.cinematic-lite .hand-phone-video {
+            visibility: hidden !important;
+          }
+
+          .project-showcase.cinematic-lite .hand-phone-stage {
+            filter: none !important;
+          }
+
+          .project-showcase.cinematic-lite .project-wall-card {
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+          }
+
+          .project-showcase.cinematic-lite .project-wall-screen img,
+          .project-showcase.cinematic-lite .hand-phone-img {
+            filter: none !important;
+          }
+        `}</style>
+      )}
+
       <div className="showcase-sticky project-showcase-inner">
         <div className="container showcase-head project-showcase-head">
           <span className="eyebrow">Our work</span>
+
           <h2 className="section-title">
             Projects that <span className="grad">whoop</span> in your hand
           </h2>
@@ -146,11 +215,13 @@ export default function PhoneShowcase() {
               <div className="hand-phone-video" aria-hidden="true">
                 <div className="video-grid" />
                 <div className="video-core" />
+
                 <div className="video-kpis">
                   <span>ROI 3.2x</span>
                   <span>SEO +184%</span>
                   <span>ADS LIVE</span>
                 </div>
+
                 <div className="video-bars">
                   <i />
                   <i />
